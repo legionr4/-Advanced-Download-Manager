@@ -1,0 +1,7 @@
+{
+    "name": "com.engmohamed.advanced_downloader",
+    "description": "Native host for Advanced Downloader extension",
+    "path": "AdvancedDownloader.exe",
+    "type": "stdio",
+    "allowed_origins": [ "chrome-extension://ejdidpckilmpbjigoejiplkddddnmklp/" ]
+}

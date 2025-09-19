@@ -1,0 +1,22 @@
+{
+    "colors": {
+        "complete": "#dff0d8",
+        "paused": "#fcf8e3",
+        "error": "#f2dede",
+        "downloading": "#d9edf7"
+    },
+    "theme": null,
+    "language": "ar",
+    "run_on_startup": false,
+    "server_port": 9614,
+    "default_unknown_category": "uncategorized",
+    "auto_resume_on_startup": true,
+    "default_download_folder": "C:\\Users\\legion\\Downloads",
+    "title_bar_bg_color": "#4a4a4a",
+    "window_bg_color": "#ffffff",
+    "instant_search_enabled": true,
+    "speed_limit_enabled": false,
+    "speed_limit_value": 1024,
+    "speed_limit_unit": "kb_s",
+    "max_concurrent_downloads": 3
+}
