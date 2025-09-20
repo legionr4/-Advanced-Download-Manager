@@ -26,6 +26,11 @@ SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=admin
 
+; --- قسم التوقيع الرقمي (Code Signing) ---
+; لإزالة تحذير SmartScreen، يجب عليك شراء شهادة توقيع رقمي وتوقيع المثبت.
+; بعد الحصول على الشهادة، قم بإزالة علامات التعليق (;) من السطر التالي واملأ التفاصيل.
+; SignTool=signtool.exe sign /f "C:\path\to\your\certificate.pfx" /p "YourPassword" /t http://timestamp.sectigo.com /v $f
+
 [Languages]
 Name: "arabic"; MessagesFile: "compiler:Languages\Arabic.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
