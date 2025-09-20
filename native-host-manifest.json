@@ -1,7 +1,9 @@
 {
     "name": "com.engmohamed.advanced_downloader",
     "description": "Native host for Advanced Downloader extension",
-    "path": "AdvancedDownloader.exe",
+    "path": "C:\\Users\\legion\\OneDrive\\Desktop\\Projects\\Idm\\run.bat",
     "type": "stdio",
-    "allowed_origins": [ "chrome-extension://ejdidpckilmpbjigoejiplkddddnmklp/" ]
+    "allowed_origins": [
+        "chrome-extension://ejdidpckilmpbjigoejiplkddddnmklp/"
+    ]
 }

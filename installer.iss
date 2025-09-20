@@ -51,13 +51,6 @@ Name: "{group}\Advanced Download Manager"; Filename: "{app}\AdvancedDownloader.e
 Name: "{group}\{cm:UninstallProgram,Advanced Download Manager}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\Advanced Download Manager"; Filename: "{app}\AdvancedDownloader.exe"; Tasks: desktopicon
 
-[Run]
-; This command runs the application with the --register flag AFTER all files have been installed.
-; This is what installs the browser extension and native host.
-; The 'postinstall' flag ensures it runs after the installation is complete.
-; The 'runhidden' flag prevents a command window from flashing.
-Filename: "{app}\AdvancedDownloader.exe"; Parameters: "--register"; Description: "Registering browser integration..."; Flags: postinstall runhidden
-
 [UninstallRun]
 ; This command runs the application with the --unregister flag when the user uninstalls the program.
 ; This cleans up the registry keys for the native host.
@@ -68,7 +61,7 @@ procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssDone then
   begin
-    // Optional: Show a message informing the user that browser restart is needed.
-    MsgBox('تم تثبيت البرنامج بنجاح. قد تحتاج إلى إعادة تشغيل متصفحك (Chrome/Edge) لتفعيل الإضافة.', mbInformation, MB_OK);
+    // تعديل: رسالة أكثر وضوحًا للمستخدم
+    MsgBox('تم تثبيت البرنامج بنجاح.'#13#10#13#10'الخطوة التالية: يرجى إعادة تشغيل متصفحك (Chrome/Edge). سيطلب منك المتصفح تفعيل "إضافة جديدة"، الرجاء الموافقة عليها.', mbInformation, MB_OK);
   end;
 end;

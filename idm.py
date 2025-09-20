@@ -143,6 +143,7 @@ class LocalizationManager:
                 'downloads_folder': "مجلد التحميلات",
                 'about': "حول البرنامج",
                 'theme': "السمة",
+                'help_menu': "مساعدة",
                 'add_url': "إضافة رابط",
                 'resume_from_file': "استئناف من ملف",
                 'file_menu': "ملف",
@@ -197,6 +198,7 @@ class LocalizationManager:
                 'confirm_remove_completed_msg': "هل أنت متأكد من أنك تريد إزالة {count} من التحميلات المكتملة؟",
                 'removed_completed_success': "تمت إزالة {count} من التحميلات المكتملة بنجاح.",
                 # Update Messages
+                'update_available_menu_item': "يتوفر تحديث جديد!",
                 'update_available_title': "تحديث متوفر",
                 'update_available_message': "يتوفر إصدار جديد ({latest_version})!\n\nملاحظات الإصدار:\n{release_notes}\n\nهل ترغب في التحديث الآن؟",
                 'no_update_available_title': "لا توجد تحديثات",
@@ -268,6 +270,7 @@ class LocalizationManager:
                 'downloads_folder': "Downloads Folder",
                 'about': "About",
                 'theme': "Theme",
+                'help_menu': "Help",
                 'add_url': "Add URL",
                 'resume_from_file': "Resume from File",
                 'file_menu': "File",
@@ -321,6 +324,7 @@ class LocalizationManager:
                 'confirm_removal_title': "Confirm Removal",
                 'confirm_remove_completed_msg': "Are you sure you want to remove {count} completed downloads?",
                 'removed_completed_success': "Successfully removed {count} completed downloads.",
+                'update_available_menu_item': "Update Available!",
                 # Update Messages
                 'update_available_title': "Update Available",
                 'update_available_message': "A new version ({latest_version}) is available!\n\nRelease Notes:\n{release_notes}\n\nWould you like to update now?",
@@ -393,6 +397,7 @@ class LocalizationManager:
                 'downloads_folder': "Dossier de téléchargements",
                 'about': "À propos",
                 'theme': "Thème",
+                'help_menu': "Aide",
                 'add_url': "Ajouter URL",
                 'resume_from_file': "Reprendre depuis un fichier",
                 'file_menu': "Fichier",
@@ -446,6 +451,7 @@ class LocalizationManager:
                 'confirm_removal_title': "Confirmer la suppression",
                 'confirm_remove_completed_msg': "Êtes-vous sûr de vouloir supprimer {count} téléchargements terminés ?",
                 'removed_completed_success': "Suppression de {count} téléchargements terminés réussie.",
+                'update_available_menu_item': "Mise à jour disponible !",
                 # Update Messages
                 'update_available_title': "Mise à jour disponible",
                 'update_available_message': "Une nouvelle version ({latest_version}) est disponible !\n\nNotes de version :\n{release_notes}\n\nSouhaitez-vous mettre à jour maintenant ?",
@@ -506,6 +512,7 @@ class LocalizationManager:
                 'downloads_folder': "Carpeta de Descargas",
                 'about': "Acerca de",
                 'theme': "Tema",
+                'help_menu': "Ayuda",
                 'add_url': "Añadir URL",
                 'resume_from_file': "Reanudar desde archivo",
                 'file_menu': "Archivo",
@@ -550,6 +557,7 @@ class LocalizationManager:
                 'confirm_removal_title': "Confirmar eliminación",
                 'confirm_remove_completed_msg': "¿Está seguro de que desea eliminar {count} descargas completadas?",
                 'removed_completed_success': "Se eliminaron {count} descargas completadas con éxito.",
+                'update_available_menu_item': "¡Actualización Disponible!",
                 # Update Messages
                 'update_available_title': "Actualización Disponible",
                 'update_available_message': "¡Una nueva versión ({latest_version}) está disponible!\n\nNotas de la versión:\n{release_notes}\n\n¿Desea actualizar ahora?",
@@ -826,17 +834,15 @@ class FileDownloaderApp:
         self.file_menubutton = ttk.Menubutton(self.toolbar_frame, text=self._('file_menu'), style='Toolbutton')
         self.file_menubutton.pack(side=tk.LEFT, padx=2)
         self.file_menu = tk.Menu(self.file_menubutton, tearoff=0)
-        self.file_menu.add_command(label=self._('check_for_updates'), command=lambda: self.check_for_updates(on_startup=False))
-        self.file_menu.add_separator()
         self.file_menubutton['menu'] = self.file_menu
         self.file_menu.add_command(label=self._('exit'), command=self.shutdown_application)
 
         # --- تحميل الأيقونات وتكوين الأنماط (تم نقلها إلى هنا) ---
         # يجب أن يتم ذلك بعد إنشاء النافذة وقبل إنشاء الأزرار التي تستخدم الأيقونات
         self.icons = {}
+        self.update_info = None # لتخزين معلومات التحديث
         self.load_icons()
         self.configure_styles()
-
 
         self.settings_button = ttk.Button(self.toolbar_frame, text=self._('settings'), image=(self.icons.get('settings') or {}).get('color'), compound=tk.LEFT, style='Toolbutton', command=self.show_settings_window)
         self.settings_button.pack(side=tk.LEFT, padx=2)
@@ -844,8 +850,21 @@ class FileDownloaderApp:
         self.open_folder_button = ttk.Button(self.toolbar_frame, text=self._('downloads_folder'), image=(self.icons.get('folder') or {}).get('color'), compound=tk.LEFT, style='Toolbutton', command=self.open_download_folder)
         self.open_folder_button.pack(side=tk.LEFT, padx=2)
 
-        self.about_button = ttk.Button(self.toolbar_frame, text=self._('about'), image=(self.icons.get('about') or {}).get('color'), compound=tk.LEFT, style='Toolbutton', command=self.show_about_dialog)
-        self.about_button.pack(side=tk.LEFT, padx=2)
+        # --- Help Menu ---
+        self.help_menubutton = ttk.Menubutton(self.toolbar_frame, text=self._('help_menu'), style='Toolbutton')
+        self.help_menubutton.pack(side=tk.LEFT, padx=2)
+        self.help_menu = tk.Menu(self.help_menubutton, tearoff=0)
+        # تخزين الألوان الافتراضية للقائمة لإعادة تعيينها لاحقًا
+        self.default_menu_bg = self.help_menu.cget('background')
+        self.default_menu_active_bg = self.help_menu.cget('activebackground')
+        self.help_menubutton['menu'] = self.help_menu
+        self.help_menu.add_command(
+            label=self._('check_for_updates'),
+            command=lambda: self.check_for_updates(on_startup=False),
+            image=(self.icons.get('update') or {}).get('color'),
+            compound=tk.LEFT
+        )
+        self.help_menu.add_command(label=self._('about'), command=self.show_about_dialog)
 
         # --- Create a scraper instance to handle requests ---
         # This will be used instead of the standard requests library to bypass Cloudflare
@@ -1144,12 +1163,19 @@ class FileDownloaderApp:
 
         # Toolbar
         self.file_menubutton.config(text=self._('file_menu'))
-        self.file_menu.entryconfig(0, label=self._('check_for_updates'))
-        self.file_menu.entryconfig(0, label=self._('exit'))
+        self.file_menu.entryconfig(0, label=self._('exit')) # This is correct, as there's only one item.
 
         self.settings_button.config(text=self._('settings'))
         self.open_folder_button.config(text=self._('downloads_folder'))
-        self.about_button.config(text=self._('about'))
+        self.help_menubutton.config(text=self._('help_menu'))
+        # تحديث قائمة المساعدة مع الأيقونة الصحيحة
+        # Update help menu
+        if self.update_info:
+            self.help_menu.entryconfig(0, label=self._('update_available_menu_item'), background='#d9edf7', activebackground='#c4e3f3')
+        else:
+            self.help_menu.entryconfig(0, label=self._('check_for_updates'), background=self.default_menu_bg, activebackground=self.default_menu_active_bg)
+
+        self.help_menu.entryconfig(1, label=self._('about'))
         if hasattr(self, 'theme_menubutton'):
             self.theme_menubutton.config(text=f"{self._('theme')}: {self.master.get_theme().capitalize()}")
 
@@ -1190,6 +1216,7 @@ class FileDownloaderApp:
             "settings": "icons/settings.png",
             "folder": "icons/folder.png",
             "about": "icons/info.png",
+            "update": "icons/bell.png",
         }
         for name, path in icon_files.items():
             try:
@@ -3059,23 +3086,22 @@ class FileDownloaderApp:
     def shutdown_application(self, force=False):
         """Handles the complete shutdown of the application."""
         # Check for active downloads to display a more specific warning
+        confirm = False
         if force:
             confirm = True
         else:
-            confirm = False
             active_downloads = any(
-            item.state in [DownloadState.DOWNLOADING, DownloadState.COMBINING, DownloadState.ERROR_RETRYING] 
-            for item in self.downloads.values()
-        )
-        message = self._('confirm_exit_msg')
-        if active_downloads:
-            message = self._('confirm_exit_active_msg')
-
+                item.state in [DownloadState.DOWNLOADING, DownloadState.COMBINING, DownloadState.ERROR_RETRYING] 
+                for item in self.downloads.values()
+            )
+            message = self._('confirm_exit_active_msg') if active_downloads else self._('confirm_exit_msg')
             confirm = messagebox.askyesno(self._('confirm_exit_title'), message, parent=self.master)
+
         if confirm:
             if self.tray_icon:
                 self.tray_icon.stop()
             self.save_session()
+            # Cancel all running threads
             # Cancel all running threads
             for item in self.downloads.values():
                 if item.state in [DownloadState.DOWNLOADING, DownloadState.COMBINING, DownloadState.ERROR_RETRYING]:
@@ -3144,7 +3170,12 @@ class FileDownloaderApp:
 
                     # مقارنة بسيطة للإصدارات (يمكن تحسينها إذا كانت الأرقام معقدة)
                     if latest_version and latest_version > APP_VERSION:
-                        self.master.after(0, self.prompt_user_to_update, version_info)
+                        # إظهار الإشعار الدائم في قائمة المساعدة
+                        self.master.after(0, self.show_persistent_update_indicator, version_info)
+                        # إظهار الرسالة المنبثقة لمرة واحدة فقط
+                        dismissed_versions = self.settings.get("dismissed_updates", [])
+                        if latest_version not in dismissed_versions:
+                            self.master.after(0, self.prompt_user_to_update, version_info)
                     elif not on_startup:
                         # أظهر رسالة فقط إذا كان المستخدم قد طلب التحقق يدويًا
                         self.master.after(0, lambda: messagebox.showinfo(self._('no_update_available_title'), self._('no_update_available_message'), parent=self.master))
@@ -3160,15 +3191,25 @@ class FileDownloaderApp:
                 self.master.after(1000, lambda: self.status_label.config(text=self._('ready_to_download')))
 
     def prompt_user_to_update(self, version_info):
-        """Shows a dialog asking the user if they want to update."""
-        if messagebox.askyesno(
+        """Shows a dialog asking the user if they want to update. If they say no, the version is dismissed."""
+        response = messagebox.askyesno(
             self._('update_available_title'),
             self._('update_available_message', latest_version=version_info.get('latest_version', 'N/A'), release_notes=version_info.get('release_notes', '')),
             parent=self.master
-        ):
+        )
+        if response: # User clicked "Yes"
             webbrowser.open_new(version_info.get("download_url"))
             messagebox.showinfo("بدء التحديث", "سيتم الآن فتح رابط التحميل في متصفحك. بعد اكتمال التحميل، يرجى تشغيل المثبت الجديد. سيتم إغلاق البرنامج الآن.", parent=self.master)
             self.shutdown_application(force=True) # إغلاق البرنامج للسماح بالتحديث
+        else: # User clicked "No"
+            # Add this version to the dismissed list and save settings
+            latest_version = version_info.get("latest_version")
+            if latest_version:
+                dismissed = self.settings.get("dismissed_updates", [])
+                if latest_version not in dismissed:
+                    dismissed.append(latest_version)
+                self.settings["dismissed_updates"] = dismissed
+                self.save_settings()
 
 class BrowserRequestHandler(BaseHTTPRequestHandler):
     """Handles HTTP requests from the browser extension."""
@@ -3330,6 +3371,14 @@ class SettingsWindow(tk.Toplevel):
         self.app = app
         self._ = app._
         self.title(self._('settings'))
+
+        # --- Set Window Icon ---
+        try:
+            icon_path = resource_path("icons/icon.ico")
+            self.iconbitmap(icon_path)
+        except tk.TclError:
+            pass # Silently ignore if icon fails to load
+
         self.geometry("450x540") # زيادة ارتفاع النافذة لضمان ظهور الأزرار
         self.transient(master)
         self.grab_set()
@@ -3346,7 +3395,7 @@ class SettingsWindow(tk.Toplevel):
         self.temp_limit_unit = tk.StringVar(value=self.app.settings.get('speed_limit_unit', 'kb_s'))
         self.temp_instant_search = tk.BooleanVar(value=self.app.settings.get('instant_search_enabled', True))
         self.temp_max_concurrent_downloads = tk.IntVar(value=self.app.max_concurrent_downloads)
-        self.temp_title_bar_bg = tk.StringVar(value=self.app.settings.get('title_bar_bg_color', '#4a4a4a'))
+        self.temp_title_bar_bg = tk.StringVar(value=self.app.settings.get('title_bar_bg_color', '#686868'))
         self.color_previews = {}
 
         # --- الإطار الرئيسي وأزرار التحكم السفلية ---
@@ -3645,7 +3694,7 @@ class SettingsWindow(tk.Toplevel):
             'paused': '#fcf8e3',
             'error': '#f2dede'
         }
-        default_frame_color = '#4a4a4a'
+        default_frame_color = '#686868'
 
         # Reset the temporary variables
         self.temp_colors = default_status_colors.copy()
@@ -3894,7 +3943,23 @@ def unregister_native_host():
         except Exception:
             pass # Ignore other errors during uninstallation.
 
-def check_dependencies():
+def is_native_host_registered():
+    """
+    Checks if the native host is registered. This is a simple check.
+    Returns True if the key exists, False otherwise.
+    """
+    if sys.platform != "win32":
+        return True # Not applicable on other OS
+    
+    HOST_NAME = "com.engmohamed.advanced_downloader"
+    reg_path = r"Software\Google\Chrome\NativeMessagingHosts"
+    try:
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, os.path.join(reg_path, HOST_NAME), 0, winreg.KEY_READ)
+        winreg.CloseKey(key)
+        return True
+    except FileNotFoundError:
+        return False
+def check_python_dependencies():
     """
     Checks for required packages. If any are missing, it shows a clear,
     blocking error message and instructs the user on how to fix it.
@@ -3989,21 +4054,11 @@ def install_browser_extension_registry():
 
 def main():
     # --- التعامل مع أوامر التثبيت والإزالة ---
-    if len(sys.argv) > 1:
-        if sys.argv[1] == '--register':
-            register_native_host()
-            install_browser_extension_registry()
-            sys.exit(0)
-        elif sys.argv[1] == '--unregister':
-            unregister_native_host()
-            # Note: We don't uninstall the browser extension registry keys
-            # as they don't harm anything if left behind.
-            sys.exit(0)
 
     # --- التحقق من المكتبات (مهم لمرحلة التطوير) ---
     # عند تحويله لـ exe، سيتم تضمين المكتبات ولن يفشل هذا التحقق
     if not getattr(sys, 'frozen', False):
-        if not check_dependencies():
+        if not check_python_dependencies():
             sys.exit(1)
 
     settings = {}
@@ -4069,9 +4124,9 @@ def main():
     # Note: This uses Windows API and might not work on all Windows versions or configurations.
     # الحصول على لون الخلفية الافتراضي للسمة الحالية
     theme_bg_color = ttk.Style().lookup('TFrame', 'background')
-    app.apply_frame_color(settings.get('title_bar_bg_color', '#4a4a4a'), theme_bg_color)
+    app.apply_frame_color(settings.get('title_bar_bg_color', '#686868'), theme_bg_color)
 
-    title_bar_bg_color = settings.get('title_bar_bg_color', '#4a4a4a') # Default dark gray
+    title_bar_bg_color = settings.get('title_bar_bg_color', '#686868') # Default dark gray
     try:
         if sys.platform == "win32" and sys.getwindowsversion().major >= 10:
             root.update_idletasks()
@@ -4105,15 +4160,18 @@ def main():
         pass # Silently ignore if customization fails
 
     # --- First Run Setup ---
-    if first_run:
-        register_native_host() # تسجيل المشغل الأصلي
-        if install_browser_extension_registry():
-            messagebox.showinfo(
-                "تثبيت إضافة المتصفح",
-                "تم تسجيل إضافة المتصفح بنجاح.\n\n"
-                "الرجاء إعادة تشغيل متصفحك (Chrome/Edge). قد تحتاج إلى تفعيل الإضافة يدويًا من صفحة الإضافات إذا ظهرت رسالة تحذير.",
-                parent=root
-            )
+    # --- تعديل: التحقق من تسجيل الإضافة عند كل تشغيل (سريع وغير مكلف) ---
+    # إذا لم تكن مسجلة، قم بتسجيلها. هذا يحل مشكلة عدم التسجيل أثناء التثبيت.
+    if not is_native_host_registered():
+        if register_native_host() and install_browser_extension_registry():
+            if first_run: # أظهر الرسالة فقط في أول تشغيل على الإطلاق
+                messagebox.showinfo(
+                    "تثبيت إضافة المتصفح",
+                    "تم تسجيل إضافة المتصفح بنجاح.\n\n"
+                    "الرجاء إعادة تشغيل متصفحك (Chrome/Edge). قد تحتاج إلى تفعيل الإضافة يدويًا من صفحة الإضافات إذا ظهرت رسالة تحذير.",
+                    parent=root
+                )
+
         app.save_settings() # Save settings to mark that first run is complete
 
     # --- START: Splash Screen Logic ---
@@ -4125,11 +4183,14 @@ def main():
 
 if __name__ == "__main__":
     # --- تعديل آلية التشغيل ---
-    # إذا تم تشغيل البرنامج من المتصفح، فسيتم تمرير وسيط خاص.
-    # إذا لم يتم العثور على نسخة أخرى من البرنامج، فستستمر هذه النسخة في العمل.
-    # إذا تم تشغيله يدويًا، فإنه يعمل كالمعتاد.
     try:
-        main()
+        # --- تعديل: التعامل مع وسائط سطر الأوامر بشكل صريح ---
+        if len(sys.argv) > 1 and sys.argv[1] == '--unregister':
+            unregister_native_host()
+            sys.exit(0)
+        else:
+            # التشغيل العادي (سواء من المستخدم أو من المتصفح)
+            main()
     except Exception as e:
         # إنشاء سجل بسيط للأخطاء الفادحة
         with open("fatal_error.log", "a") as f:

@@ -31,14 +31,22 @@ async function sendToDownloader(downloadUrl) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url: downloadUrl, cookies: cookieString }),
     });
-  } catch (error) {
-    // فشل الاتصال، ربما البرنامج مغلق. لنقم بتشغيله عبر المُشغّل الأصلي.
-    console.log("App not running. Attempting to launch via native host.");
-    chrome.runtime.sendNativeMessage(
-      'com.engmohamed.advanced_downloader',
-      { url: downloadUrl, cookies: cookieString }, // إرسال كائن يحتوي على الرابط والكوكيز
-      (response) => { /* لا نحتاج للتعامل مع الرد هنا */ } 
-    );
+  } catch (error) {    
+    // التحقق من أن الخطأ هو خطأ في الشبكة، مما يعني أن البرنامج غير قيد التشغيل
+    if (error instanceof TypeError) {
+        console.log("App not running or connection refused. Attempting to launch via native host.");
+        chrome.runtime.sendNativeMessage(
+          'com.engmohamed.advanced_downloader',
+          { url: downloadUrl, cookies: cookieString },
+          (response) => { 
+            if (chrome.runtime.lastError) {
+              console.error(`Native host error: ${chrome.runtime.lastError.message}`);
+            }
+          } 
+        );
+    } else {
+        console.error("An unexpected error occurred in sendToDownloader:", error);
+    }
   }
 }
 
